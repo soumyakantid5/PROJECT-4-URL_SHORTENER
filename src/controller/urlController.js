@@ -1,22 +1,9 @@
 const validUrl = require("valid-url");
-const redis = require("redis");
 const { promisify } = require("util");
+const {redisClient}=require('../cache_config')
 //const shortid = require("shortid");
 const urlModel = require("../models/urlModel");
 
-//Connect to redis
-const redisClient = redis.createClient(
-  13224, //port
-  "redis-13224.c261.us-east-1-4.ec2.cloud.redislabs.com", //host
-  { no_ready_check: true }
-);
-redisClient.auth("bpbAcN0vNBUHk2nza7H8i1exy9Q69PyU", function (err) {   //password
-  if (err) throw err;
-});
-
-redisClient.on("connect", async function () {
-  console.log("Connected to Redis..");
-});
 
 const SET_ASYNC = promisify(redisClient.SET).bind(redisClient);
 const GET_ASYNC = promisify(redisClient.GET).bind(redisClient);
@@ -95,7 +82,7 @@ const shortenUrl = async (req, res) => {
 
       let shortUrl = baseUrl+urlCode;
 
-      const generateUrl = { longUrl, shortUrl, urlCode };
+      const generateUrl = { urlCode, longUrl, shortUrl };
 
       let createUrl = await urlModel.create(generateUrl);
 
